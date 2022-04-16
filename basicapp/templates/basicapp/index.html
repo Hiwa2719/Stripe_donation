@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <style>
+        /**
+     * The CSS shown here will not be introduced in the Quickstart guide, but shows
+     * how you can use CSS to style your Element's container.
+     */
+        .StripeElement {
+            box-sizing: border-box;
+
+            height: 40px;
+
+            padding: 10px 12px;
+
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background-color: white;
+
+            box-shadow: 0 1px 3px 0 #e6ebf1;
+            -webkit-transition: box-shadow 150ms ease;
+            transition: box-shadow 150ms ease;
+        }
+
+        .StripeElement--focus {
+            box-shadow: 0 1px 3px 0 #cfd7df;
+        }
+
+        .StripeElement--invalid {
+            border-color: #fa755a;
+        }
+
+        .StripeElement--webkit-autofill {
+            background-color: #fefde5 !important;
+        }
+    </style>
+
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <div class="row my-5">
+        <div class="col-md-6 bg-info p-5">
+            <div class="row align-items-center">
+                <div class="col-5">
+                        <img src="{% static 'images/Hiwa.JPG' %}" class="rounded-circle img-fluid" alt="">
+                </div>
+                <div class="col font-weight-bold pr-0">
+                    <h1 class="text-white">Buy Us Coffee?</h1>
+                    <h4>One Time Donation</h4>
+                </div>
+            </div>
+            <div class="border text-white my-4"></div>
+            <div class="">
+                <form action="{% url 'basicapp:index' %}" method="post" id="payment-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="amount">Choose Amount:</label>
+                        <select class="custom-select" name="amount" id="amount">
+                            <option value="5" selected>$5 here is a coffee on me :)</option>
+                            <option value="10">$10 you helped me so i'm going to help you</option>
+                            <option value="25">$25 i love your channel!</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" name="email" placeholder="Email" required>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" name="name" placeholder="Name" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-element">
+                            Credit or debit card
+                        </label>
+                        <div id="card-element" class="form-control">
+                            <!-- A Stripe Element will be inserted here. -->
+                        </div>
+
+                        <!-- Used to display form errors. -->
+                        <div id="card-errors" role="alert"></div>
+                    </div>
+                    <div class="border text-white my-4"></div>
+                    <button type="submit" class="btn btn-warning btn-block">Submit Payment</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-6 p-5">
+            <div class="d-flex align-items-baseline justify-content-between">
+                <img src="{% static 'images/Coffee5.png' %}" alt="" class="img-fluid" style="max-width: 100px">
+                <img src="{% static 'images/Coffee5.png' %}" alt="" class="img-fluid" style="max-width: 150px">
+                <img src="{% static 'images/Coffee5.png' %}" alt="" class="img-fluid" style="max-width: 200px">
+            </div>
+            <h1>If I've provided you with value please consider supporting our efforts ;)</h1>
+            <p>Source code and videos are free to download, use as you wish :) At no point should you feel obligated to donate but if you have the means consider the time and effort I put into each project/video. Thank you!</p>
+            <a href="https://github.com/divanov11/buydenniscoffee" class="btn btn-info btn-block">Download Source Code</a>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var stripe = Stripe('pk_test_51HxqX6Be6JMwtysrVh4tJzp9dpcHLL44O0Lg9DK8kNdDtYdQIryT5dOlpdVgMJkLm88ZLU3pYCnXoY73lWIYXYqe00hKNZaVdb');
+
+        // Create an instance of Elements.
+        var elements = stripe.elements();
+
+        // Custom styling can be passed to options when creating an Element.
+        // (Note that this demo uses a wider set of styles than the guide below.)
+        var style = {
+            base: {
+                color: '#32325d',
+                fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                fontSmoothing: 'antialiased',
+                fontSize: '16px',
+                '::placeholder': {
+                    color: '#aab7c4'
+                }
+            },
+            invalid: {
+                color: '#fa755a',
+                iconColor: '#fa755a'
+            }
+        };
+
+        // Create an instance of the card Element.
+        var card = elements.create('card', {style: style});
+
+        // Add an instance of the card Element into the `card-element` <div>.
+        card.mount('#card-element');
+
+        // Handle real-time validation errors from the card Element.
+        card.on('change', function(event) {
+            var displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+
+        // Handle form submission.
+        var form = document.getElementById('payment-form');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            stripe.createToken(card).then(function(result) {
+                if (result.error) {
+                    // Inform the user if there was an error.
+                    var errorElement = document.getElementById('card-errors');
+                    errorElement.textContent = result.error.message;
+                } else {
+                    // Send the token to your server.
+                    stripeTokenHandler(result.token);
+                }
+            });
+        });
+
+        // Submit the form with the token ID.
+        function stripeTokenHandler(token) {
+            // Insert the token ID into the form so it gets submitted to the server
+            var form = document.getElementById('payment-form');
+            var hiddenInput = document.createElement('input');
+            hiddenInput.setAttribute('type', 'hidden');
+            hiddenInput.setAttribute('name', 'stripeToken');
+            hiddenInput.setAttribute('value', token.id);
+            form.appendChild(hiddenInput);
+
+            // Submit the form
+            form.submit();
+        }
+    </script>
+
+{% endblock %}
