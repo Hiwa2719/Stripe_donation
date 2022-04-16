@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}
+Donation Page
+{% endblock %}
 {% block content %}
 
     <style>
@@ -43,7 +46,7 @@
         <div class="col-md-6 bg-info p-5">
             <div class="row align-items-center">
                 <div class="col-5">
-                        <img src="{% static 'images/Hiwa.JPG' %}" class="rounded-circle img-fluid" alt="">
+                    <img src="{% static 'images/Hiwa.JPG' %}" class="rounded-circle img-fluid" alt="">
                 </div>
                 <div class="col font-weight-bold pr-0">
                     <h1 class="text-white">Buy Us Coffee?</h1>
@@ -54,8 +57,8 @@
             <div class="">
                 <form action="{% url 'basicapp:index' %}" method="post" id="payment-form">
                     {% csrf_token %}
-                    <div class="form-group">
-                        <label for="amount">Choose Amount:</label>
+                    <div class="form-group mb-1">
+                        <div>Choose Amount:</div>
                         <select class="custom-select" name="amount" id="amount">
                             <option value="5" selected>$5 here is a coffee on me :)</option>
                             <option value="10">$10 you helped me so i'm going to help you</option>
@@ -88,14 +91,19 @@
             </div>
         </div>
         <div class="col-md-6 p-5">
-            <div class="d-flex align-items-baseline justify-content-between">
+            <div class="d-flex align-items-baseline justify-content-between mb-3">
                 <img src="{% static 'images/Coffee5.png' %}" alt="" class="img-fluid" style="max-width: 100px">
-                <img src="{% static 'images/Coffee5.png' %}" alt="" class="img-fluid" style="max-width: 150px">
-                <img src="{% static 'images/Coffee5.png' %}" alt="" class="img-fluid" style="max-width: 200px">
+                <img src="{% static 'images/Coffee10.png' %}" alt="" class="img-fluid" style="max-width: 150px">
+                <img src="{% static 'images/Coffee25.png' %}" alt="" class="img-fluid" style="max-width: 200px">
             </div>
             <h1>If I've provided you with value please consider supporting our efforts ;)</h1>
-            <p>Source code and videos are free to download, use as you wish :) At no point should you feel obligated to donate but if you have the means consider the time and effort I put into each project/video. Thank you!</p>
-            <a href="https://github.com/divanov11/buydenniscoffee" class="btn btn-info btn-block">Download Source Code</a>
+            <p>Source code and videos are free to download, use as you wish :) At no point should you feel obligated to
+                donate but if you have the means consider the time and effort I put into each project/video. Thank
+                you!</p>
+            <div class="d-flex justify-content-center mt-5">
+                <a href="https://github.com/divanov11/buydenniscoffee" class="btn btn-info btn-block">Download Source
+                    Code</a>
+            </div>
         </div>
     </div>
 
@@ -130,7 +138,7 @@
         card.mount('#card-element');
 
         // Handle real-time validation errors from the card Element.
-        card.on('change', function(event) {
+        card.on('change', function (event) {
             var displayError = document.getElementById('card-errors');
             if (event.error) {
                 displayError.textContent = event.error.message;
@@ -141,10 +149,10 @@
 
         // Handle form submission.
         var form = document.getElementById('payment-form');
-        form.addEventListener('submit', function(event) {
+        form.addEventListener('submit', function (event) {
             event.preventDefault();
 
-            stripe.createToken(card).then(function(result) {
+            stripe.createToken(card).then(function (result) {
                 if (result.error) {
                     // Inform the user if there was an error.
                     var errorElement = document.getElementById('card-errors');
